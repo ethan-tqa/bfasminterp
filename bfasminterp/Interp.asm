@@ -18,7 +18,7 @@
 
 printChar PROTO C
 
-interpret proc
+interpret proc C
 .code
 	push rbx		; these are callee saved ?
 	push rsi
@@ -34,7 +34,7 @@ lbl_interp_loop:	; beginning of new interpreter cycle
 
 lbl_begin:
 	mov rax, [rcx]
-	mov r10w, ax
+	movzx r10, ax
 	mov r11d, eax
 	shr r11, 16
 	lea rax, [jumptable]				; load the address of the table
@@ -77,8 +77,10 @@ lbl_Print:
 	push rdx
 	push r8
 	push r9		; HACK XXX BAD: I currently do not understand why R9 is stomped after calling printChar
+	sub rsp, 32
 	movzx rcx, byte ptr [r8]
 	call printChar
+	add rsp, 32
 	pop r9
 	pop r8
 	pop rdx

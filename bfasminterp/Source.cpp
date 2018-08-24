@@ -68,7 +68,7 @@ int main(int argc, char *argv[])
 	fs.read(code, code_size);
 	fs.close();
 
-	size_t loops = bench ? 50 : 1;
+	size_t loops = bench ? 20 : 1;
 
 	auto t1 = high_resolution_clock::now();
 	for (size_t i = 0; i < loops; i++)
