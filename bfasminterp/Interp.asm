@@ -23,9 +23,17 @@ interpret proc C
 	push rbx		; these are callee saved ?
 	push rsi
 	push rdi
+	push rbp
+	push r12
+	push r13
+	push r14
+	push r15
+
 	xor rbx, rbx	; clear these guys
 	xor rsi, rsi
 	xor rdi, rdi
+
+	lea r15, [jumptable]				; load the address of the table
 
 	jmp lbl_begin	; don't want to increase rsi in the first loop
 
@@ -37,41 +45,103 @@ lbl_begin:
 	movzx r10, ax
 	mov r11d, eax
 	shr r11, 16
-	lea rax, [jumptable]				; load the address of the table
-	mov rbx, qword ptr [rax + r10 * 8]	; add the offset
+	mov rbx, qword ptr [r15 + r10 * 8]	; add the offset
 	jmp rbx
 
 lbl_Loop:
 	cmp byte ptr [r8], 0
 	je lbl_set_loop_ip
-	jmp lbl_interp_loop
+	
+	add rcx, 4		; advance the bytecode stream by 4 bytes (1 instruction)
+	mov rax, [rcx]
+	movzx r10, ax
+	mov r11d, eax
+	shr r11, 16
+	mov rbx, qword ptr [r15 + r10 * 8]	; add the offset
+	jmp rbx
+
 lbl_set_loop_ip:
 	mov rax, r11
 	shl rax, 2
 	add rcx, rax
-	jmp lbl_interp_loop
+	
+	add rcx, 4		; advance the bytecode stream by 4 bytes (1 instruction)
+	mov rax, [rcx]
+	movzx r10, ax
+	mov r11d, eax
+	shr r11, 16
+	mov rbx, qword ptr [r15 + r10 * 8]	; add the offset
+	jmp rbx
+
 lbl_Return:
 	cmp byte ptr [r8], 0
 	jne lbl_set_return_ip
-	jmp lbl_interp_loop
+	
+	add rcx, 4		; advance the bytecode stream by 4 bytes (1 instruction)
+	mov rax, [rcx]
+	movzx r10, ax
+	mov r11d, eax
+	shr r11, 16
+	mov rbx, qword ptr [r15 + r10 * 8]	; add the offset
+	jmp rbx
+
 lbl_set_return_ip:
 	mov rax, r11
 	shl rax, 2
 	sub rcx, rax
-	jmp lbl_interp_loop
+	
+	add rcx, 4		; advance the bytecode stream by 4 bytes (1 instruction)
+	mov rax, [rcx]
+	movzx r10, ax
+	mov r11d, eax
+	shr r11, 16
+	mov rbx, qword ptr [r15 + r10 * 8]	; add the offset
+	jmp rbx
 
 lbl_Right:
 	add r8, r11
-	jmp lbl_interp_loop
+	
+	add rcx, 4		; advance the bytecode stream by 4 bytes (1 instruction)
+	mov rax, [rcx]
+	movzx r10, ax
+	mov r11d, eax
+	shr r11, 16
+	mov rbx, qword ptr [r15 + r10 * 8]	; add the offset
+	jmp rbx
+
 lbl_Left:
 	sub r8, r11
-	jmp lbl_interp_loop
+	
+	add rcx, 4		; advance the bytecode stream by 4 bytes (1 instruction)
+	mov rax, [rcx]
+	movzx r10, ax
+	mov r11d, eax
+	shr r11, 16
+	mov rbx, qword ptr [r15 + r10 * 8]	; add the offset
+	jmp rbx
+
 lbl_Add:
 	add byte ptr [r8], r11b
-	jmp lbl_interp_loop
+	
+	add rcx, 4		; advance the bytecode stream by 4 bytes (1 instruction)
+	mov rax, [rcx]
+	movzx r10, ax
+	mov r11d, eax
+	shr r11, 16
+	mov rbx, qword ptr [r15 + r10 * 8]	; add the offset
+	jmp rbx
+
 lbl_Minus:
 	sub byte ptr [r8], r11b
-	jmp lbl_interp_loop
+	
+	add rcx, 4		; advance the bytecode stream by 4 bytes (1 instruction)
+	mov rax, [rcx]
+	movzx r10, ax
+	mov r11d, eax
+	shr r11, 16
+	mov rbx, qword ptr [r15 + r10 * 8]	; add the offset
+	jmp rbx
+
 lbl_Print:
 	push rcx
 	push rdx
@@ -104,9 +174,15 @@ jumptable:		; MASM cannot emit relative address in .data, so must put it in .cod
 	dq lbl_End
 
 lbl_End:
+	pop r15
+	pop r14
+	pop r13
+	pop r12
+	pop rbp
 	pop rdi
 	pop rsi
 	pop rbx
+
 	ret
 interpret endp
 end
