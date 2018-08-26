@@ -37,8 +37,7 @@ lbl_interp_loop:	; beginning of new interpreter cycle
 	movzx r10, word ptr [r13 + rsi*4]
 	movzx r11, word ptr [r13 + rsi*4 + 2]
 	inc rsi			; advance to the next instruction
-	mov rbx, qword ptr [r15 + r10 * 8]	; add the offset
-	jmp rbx
+	jmp qword ptr [r15 + r10 * 8]
 
 ALIGN 4
 lbl_Loop:
@@ -47,17 +46,14 @@ lbl_Loop:
 	movzx r10, word ptr [r13 + rsi*4]
 	movzx r11, word ptr [r13 + rsi*4 + 2]
 	inc rsi			; advance to the next instruction
-	mov rbx, qword ptr [r15 + r10 * 8]	; add the offset
-	jmp rbx
+	jmp qword ptr [r15 + r10 * 8]
 
 lbl_set_loop_ip:
-	mov rax, r11
-	add rsi, rax
+	add rsi, r11
 	movzx r10, word ptr [r13 + rsi*4]
 	movzx r11, word ptr [r13 + rsi*4 + 2]
 	inc rsi			; advance to the next instruction
-	mov rbx, qword ptr [r15 + r10 * 8]	; add the offset
-	jmp rbx
+	jmp qword ptr [r15 + r10 * 8]
 	
 ALIGN 4
 lbl_Return:
@@ -66,17 +62,14 @@ lbl_Return:
 	movzx r10, word ptr [r13 + rsi*4]
 	movzx r11, word ptr [r13 + rsi*4 + 2]
 	inc rsi			; advance to the next instruction
-	mov rbx, qword ptr [r15 + r10 * 8]	; add the offset
-	jmp rbx
+	jmp qword ptr [r15 + r10 * 8]
 
 lbl_set_return_ip:
-	mov rax, r11
-	sub rsi, rax
+	sub rsi, r11
 	movzx r10, word ptr [r13 + rsi*4]
 	movzx r11, word ptr [r13 + rsi*4 + 2]
 	inc rsi			; advance to the next instruction
-	mov rbx, qword ptr [r15 + r10 * 8]	; add the offset
-	jmp rbx
+	jmp qword ptr [r15 + r10 * 8]
 	
 ALIGN 4
 lbl_Right:
@@ -84,8 +77,7 @@ lbl_Right:
 	movzx r10, word ptr [r13 + rsi*4]
 	movzx r11, word ptr [r13 + rsi*4 + 2]
 	inc rsi			; advance to the next instruction
-	mov rbx, qword ptr [r15 + r10 * 8]	; add the offset
-	jmp rbx
+	jmp qword ptr [r15 + r10 * 8]
 	
 ALIGN 4
 lbl_Left:
@@ -93,8 +85,7 @@ lbl_Left:
 	movzx r10, word ptr [r13 + rsi*4]
 	movzx r11, word ptr [r13 + rsi*4 + 2]
 	inc rsi			; advance to the next instruction
-	mov rbx, qword ptr [r15 + r10 * 8]	; add the offset
-	jmp rbx
+	jmp qword ptr [r15 + r10 * 8]
 	
 ALIGN 4
 lbl_Add:
@@ -102,8 +93,7 @@ lbl_Add:
 	movzx r10, word ptr [r13 + rsi*4]
 	movzx r11, word ptr [r13 + rsi*4 + 2]
 	inc rsi			; advance to the next instruction
-	mov rbx, qword ptr [r15 + r10 * 8]	; add the offset
-	jmp rbx
+	jmp qword ptr [r15 + r10 * 8]
 	
 ALIGN 4
 lbl_Minus:
@@ -111,8 +101,7 @@ lbl_Minus:
 	movzx r10, word ptr [r13 + rsi*4]
 	movzx r11, word ptr [r13 + rsi*4 + 2]
 	inc rsi			; advance to the next instruction
-	mov rbx, qword ptr [r15 + r10 * 8]	; add the offset
-	jmp rbx
+	jmp qword ptr [r15 + r10 * 8]
 
 lbl_Print:
 	movzx rcx, byte ptr [rdi]
