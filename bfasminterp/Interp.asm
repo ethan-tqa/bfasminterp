@@ -35,101 +35,61 @@ interpret proc C
 	jmp lbl_begin	; don't want to increase rsi in the first loop
 
 lbl_interp_loop:	; beginning of new interpreter cycle
-	add rcx, 4		; advance the bytecode stream by 4 bytes (1 instruction)
+	add rsi, 4		; advance the bytecode stream by 4 bytes (1 instruction)
 
 lbl_begin:
-	movzx r10, word ptr [rcx]
-	movzx r11, word ptr [rcx + 2]
+	movzx r10, word ptr [rsi]
+	movzx r11, word ptr [rsi + 2]
 	mov rbx, qword ptr [r15 + r10 * 8]	; add the offset
 	jmp rbx
 
 ALIGN 4
 lbl_Loop:
-	cmp byte ptr [r8], 0
+	cmp byte ptr [rdi], 0
 	je lbl_set_loop_ip
-	add rcx, 4		; advance the bytecode stream by 4 bytes (1 instruction)
-	movzx r10, word ptr [rcx]
-	movzx r11, word ptr [rcx + 2]
-	mov rbx, qword ptr [r15 + r10 * 8]	; add the offset
-	jmp rbx
+	jmp lbl_interp_loop
 
 lbl_set_loop_ip:
 	mov rax, r11
 	shl rax, 2
-	add rcx, rax
-	add rcx, 4		; advance the bytecode stream by 4 bytes (1 instruction)
-	movzx r10, word ptr [rcx]
-	movzx r11, word ptr [rcx + 2]
-	mov rbx, qword ptr [r15 + r10 * 8]	; add the offset
-	jmp rbx
+	add rsi, rax
+	jmp lbl_interp_loop
 	
 ALIGN 4
 lbl_Return:
-	cmp byte ptr [r8], 0
+	cmp byte ptr [rdi], 0
 	jne lbl_set_return_ip
-	add rcx, 4		; advance the bytecode stream by 4 bytes (1 instruction)
-	movzx r10, word ptr [rcx]
-	movzx r11, word ptr [rcx + 2]
-	mov rbx, qword ptr [r15 + r10 * 8]	; add the offset
-	jmp rbx
+	jmp lbl_interp_loop
 
 lbl_set_return_ip:
 	mov rax, r11
 	shl rax, 2
-	sub rcx, rax
-	add rcx, 4		; advance the bytecode stream by 4 bytes (1 instruction)
-	movzx r10, word ptr [rcx]
-	movzx r11, word ptr [rcx + 2]
-	mov rbx, qword ptr [r15 + r10 * 8]	; add the offset
-	jmp rbx
+	sub rsi, rax
+	jmp lbl_interp_loop
 	
 ALIGN 4
 lbl_Right:
-	add r8, r11
-	add rcx, 4		; advance the bytecode stream by 4 bytes (1 instruction)
-	movzx r10, word ptr [rcx]
-	movzx r11, word ptr [rcx + 2]
-	mov rbx, qword ptr [r15 + r10 * 8]	; add the offset
-	jmp rbx
+	add rdi, r11
+	jmp lbl_interp_loop
 	
 ALIGN 4
 lbl_Left:
-	sub r8, r11
-	add rcx, 4		; advance the bytecode stream by 4 bytes (1 instruction)
-	movzx r10, word ptr [rcx]
-	movzx r11, word ptr [rcx + 2]
-	mov rbx, qword ptr [r15 + r10 * 8]	; add the offset
-	jmp rbx
+	sub rdi, r11
+	jmp lbl_interp_loop
 	
 ALIGN 4
 lbl_Add:
-	add byte ptr [r8], r11b
-	add rcx, 4		; advance the bytecode stream by 4 bytes (1 instruction)
-	movzx r10, word ptr [rcx]
-	movzx r11, word ptr [rcx + 2]
-	mov rbx, qword ptr [r15 + r10 * 8]	; add the offset
-	jmp rbx
+	add byte ptr [rdi], r11b
+	jmp lbl_interp_loop
 	
 ALIGN 4
 lbl_Minus:
-	sub byte ptr [r8], r11b
-	add rcx, 4		; advance the bytecode stream by 4 bytes (1 instruction)
-	movzx r10, word ptr [rcx]
-	movzx r11, word ptr [rcx + 2]
-	mov rbx, qword ptr [r15 + r10 * 8]	; add the offset
-	jmp rbx
+	sub byte ptr [rdi], r11b
+	jmp lbl_interp_loop
 
 lbl_Print:
-	push rcx
-	push rdx
-	push r8
-	sub rsp, 32
-	movzx rcx, byte ptr [r8]
+	movzx rcx, byte ptr [rdi]
 	call printChar
-	add rsp, 32
-	pop r8
-	pop rdx
-	pop rcx
 	jmp lbl_interp_loop
 lbl_Read:
 	jmp lbl_interp_loop
