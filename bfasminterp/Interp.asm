@@ -28,6 +28,7 @@ interpret proc C
 	push r13
 	push r14
 	push r15
+	sub rsp, 32		; shadow space?
 
 	xor rbx, rbx	; clear these guys
 	xor rsi, rsi
@@ -144,12 +145,8 @@ lbl_Print:
 	push rcx
 	push rdx
 	push r8
-	push r9		; HACK XXX BAD: I currently do not understand why R9 is stomped after calling printChar
-	sub rsp, 32
 	movzx rcx, byte ptr [r8]
 	call printChar
-	add rsp, 32
-	pop r9
 	pop r8
 	pop rdx
 	pop rcx
@@ -172,6 +169,7 @@ jumptable:		; MASM cannot emit relative address in .data, so must put it in .cod
 	dq lbl_End
 
 lbl_End:
+	add rsp, 32
 	pop r15
 	pop r14
 	pop r13
