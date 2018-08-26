@@ -50,7 +50,7 @@ lbl_begin:
 
 ALIGN 4
 lbl_Loop:
-	cmp byte ptr [r8], 0
+	cmp r14, 0
 	je lbl_set_loop_ip
 	
 	add rcx, 4		; advance the bytecode stream by 4 bytes (1 instruction)
@@ -74,7 +74,7 @@ lbl_set_loop_ip:
 	
 ALIGN 4
 lbl_Return:
-	cmp byte ptr [r8], 0
+	cmp r14, 0
 	jne lbl_set_return_ip
 	
 	add rcx, 4		; advance the bytecode stream by 4 bytes (1 instruction)
@@ -98,7 +98,9 @@ lbl_set_return_ip:
 	
 ALIGN 4
 lbl_Right:
+	mov byte ptr [r8], r14b
 	add r8, r11
+	movzx r14, byte ptr [r8]
 	
 	add rcx, 4		; advance the bytecode stream by 4 bytes (1 instruction)
 	mov rax, [rcx]
@@ -109,7 +111,9 @@ lbl_Right:
 	
 ALIGN 4
 lbl_Left:
+	mov byte ptr [r8], r14b
 	sub r8, r11
+	movzx r14, byte ptr [r8]
 	
 	add rcx, 4		; advance the bytecode stream by 4 bytes (1 instruction)
 	mov rax, [rcx]
@@ -120,7 +124,7 @@ lbl_Left:
 	
 ALIGN 4
 lbl_Add:
-	add byte ptr [r8], r11b
+	add r14, r11
 	
 	add rcx, 4		; advance the bytecode stream by 4 bytes (1 instruction)
 	mov rax, [rcx]
@@ -131,7 +135,7 @@ lbl_Add:
 	
 ALIGN 4
 lbl_Minus:
-	sub byte ptr [r8], r11b
+	sub r14, r11
 	
 	add rcx, 4		; advance the bytecode stream by 4 bytes (1 instruction)
 	mov rax, [rcx]
@@ -146,7 +150,7 @@ lbl_Print:
 	push r8
 	push r9		; HACK XXX BAD: I currently do not understand why R9 is stomped after calling printChar
 	sub rsp, 32
-	movzx rcx, byte ptr [r8]
+	mov rcx, r14
 	call printChar
 	add rsp, 32
 	pop r9
