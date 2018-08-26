@@ -26,20 +26,17 @@ interpret proc C
 	push r15
 	sub rsp, 32		; shadow space?
 
-	mov rsi, rcx	; "program counter", which instruction we are at
+	xor rsi, rsi	; "program counter", which instruction we are at
 	mov rdi, r8		; "memory pointer", where we are pointing to in the interpreter memory
 	xor r14, r14	; store the value of current mem cell, which of course starts at 0
 
 	lea r15, [jumptable]				; load the address of the table
-
-	jmp lbl_begin	; don't want to increase rsi in the first loop
+	mov r13, rcx	; base address of instruction array
 
 lbl_interp_loop:	; beginning of new interpreter cycle
-	add rsi, 4		; advance the bytecode stream by 4 bytes (1 instruction)
-
-lbl_begin:
-	movzx r10, word ptr [rsi]
-	movzx r11, word ptr [rsi + 2]
+	movzx r10, word ptr [r13 + rsi*4]
+	movzx r11, word ptr [r13 + rsi*4 + 2]
+	inc rsi			; advance to the next instruction
 	mov rbx, qword ptr [r15 + r10 * 8]	; add the offset
 	jmp rbx
 
@@ -47,45 +44,75 @@ ALIGN 4
 lbl_Loop:
 	cmp byte ptr [rdi], 0
 	je lbl_set_loop_ip
-	jmp lbl_interp_loop
+	movzx r10, word ptr [r13 + rsi*4]
+	movzx r11, word ptr [r13 + rsi*4 + 2]
+	inc rsi			; advance to the next instruction
+	mov rbx, qword ptr [r15 + r10 * 8]	; add the offset
+	jmp rbx
 
 lbl_set_loop_ip:
 	mov rax, r11
-	shl rax, 2
 	add rsi, rax
-	jmp lbl_interp_loop
+	movzx r10, word ptr [r13 + rsi*4]
+	movzx r11, word ptr [r13 + rsi*4 + 2]
+	inc rsi			; advance to the next instruction
+	mov rbx, qword ptr [r15 + r10 * 8]	; add the offset
+	jmp rbx
 	
 ALIGN 4
 lbl_Return:
 	cmp byte ptr [rdi], 0
 	jne lbl_set_return_ip
-	jmp lbl_interp_loop
+	movzx r10, word ptr [r13 + rsi*4]
+	movzx r11, word ptr [r13 + rsi*4 + 2]
+	inc rsi			; advance to the next instruction
+	mov rbx, qword ptr [r15 + r10 * 8]	; add the offset
+	jmp rbx
 
 lbl_set_return_ip:
 	mov rax, r11
-	shl rax, 2
 	sub rsi, rax
-	jmp lbl_interp_loop
+	movzx r10, word ptr [r13 + rsi*4]
+	movzx r11, word ptr [r13 + rsi*4 + 2]
+	inc rsi			; advance to the next instruction
+	mov rbx, qword ptr [r15 + r10 * 8]	; add the offset
+	jmp rbx
 	
 ALIGN 4
 lbl_Right:
 	add rdi, r11
-	jmp lbl_interp_loop
+	movzx r10, word ptr [r13 + rsi*4]
+	movzx r11, word ptr [r13 + rsi*4 + 2]
+	inc rsi			; advance to the next instruction
+	mov rbx, qword ptr [r15 + r10 * 8]	; add the offset
+	jmp rbx
 	
 ALIGN 4
 lbl_Left:
 	sub rdi, r11
-	jmp lbl_interp_loop
+	movzx r10, word ptr [r13 + rsi*4]
+	movzx r11, word ptr [r13 + rsi*4 + 2]
+	inc rsi			; advance to the next instruction
+	mov rbx, qword ptr [r15 + r10 * 8]	; add the offset
+	jmp rbx
 	
 ALIGN 4
 lbl_Add:
 	add byte ptr [rdi], r11b
-	jmp lbl_interp_loop
+	movzx r10, word ptr [r13 + rsi*4]
+	movzx r11, word ptr [r13 + rsi*4 + 2]
+	inc rsi			; advance to the next instruction
+	mov rbx, qword ptr [r15 + r10 * 8]	; add the offset
+	jmp rbx
 	
 ALIGN 4
 lbl_Minus:
 	sub byte ptr [rdi], r11b
-	jmp lbl_interp_loop
+	movzx r10, word ptr [r13 + rsi*4]
+	movzx r11, word ptr [r13 + rsi*4 + 2]
+	inc rsi			; advance to the next instruction
+	mov rbx, qword ptr [r15 + r10 * 8]	; add the offset
+	jmp rbx
 
 lbl_Print:
 	movzx rcx, byte ptr [rdi]
