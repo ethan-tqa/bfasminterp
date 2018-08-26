@@ -42,14 +42,10 @@ lbl_interp_loop:	; beginning of new interpreter cycle
 ALIGN 4
 lbl_Loop:
 	cmp byte ptr [rdi], 0
-	je lbl_set_loop_ip
-	movzx r10, word ptr [r13 + rsi*4]
-	movzx r11, word ptr [r13 + rsi*4 + 2]
-	inc rsi			; advance to the next instruction
-	jmp qword ptr [r15 + r10 * 8]
+	jne lbl_set_loop_ip
+	add rsi, r11
 
 lbl_set_loop_ip:
-	add rsi, r11
 	movzx r10, word ptr [r13 + rsi*4]
 	movzx r11, word ptr [r13 + rsi*4 + 2]
 	inc rsi			; advance to the next instruction
