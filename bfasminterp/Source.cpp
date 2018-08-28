@@ -26,12 +26,17 @@ enum class eOpcode : uint16_t {
 };
 
 struct instruction {
-	eOpcode opcode;
+	union {
+		eOpcode opcode;
+		int16_t offset;
+	};
 	uint16_t value;
 };
 
 void run(const char * code, long code_size, bool bench);
 extern "C" int interpret(instruction* instructions, size_t count, int8_t* mem);
+
+extern "C" const short jumptable_offsets[];
 
 extern "C" void printChar(char c) {
 	cout << c; // literally
@@ -181,6 +186,10 @@ void run(const char * code, long code_size, bool bench)
 		default:
 			break;
 		}
+	}
+
+	for (size_t ip = 0; ip < instructions_count + 1; ip++) {
+		instructions[ip].offset = jumptable_offsets[(uint16_t)instructions[ip].opcode];
 	}
 
 	int8_t mem[mem_size] = { 0 }; // memory

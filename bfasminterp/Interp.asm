@@ -13,6 +13,7 @@
 ; R8 = pointer to interpreter memory
 
 printChar PROTO C
+public jumptable_offsets
 
 interpret proc C
 .code
@@ -31,13 +32,29 @@ interpret proc C
 	xor r14, r14	; store the value of current mem cell, which of course starts at 0
 
 	lea r15, [jumptable]				; load the address of the table
+	lea r12, [jumptable_offsets]				; load the address of the table
 	mov r13, rcx	; base address of instruction array
+
+	jmp lbl_interp_loop
+
+jumptable_offsets::
+	dw lbl_Loop - jumptable_offsets
+	dw lbl_Return - jumptable_offsets
+	dw lbl_Right - jumptable_offsets
+	dw lbl_Left - jumptable_offsets
+	dw lbl_Add - jumptable_offsets
+	dw lbl_Minus - jumptable_offsets
+	dw lbl_Print - jumptable_offsets
+	dw lbl_Read - jumptable_offsets
+	dw lbl_Invalid - jumptable_offsets
+	dw lbl_End - jumptable_offsets
 
 lbl_interp_loop:	; beginning of new interpreter cycle
 	movzx r10, word ptr [r13 + rsi*4]
 	movzx r11, word ptr [r13 + rsi*4 + 2]
 	inc rsi			; advance to the next instruction
-	jmp qword ptr [r15 + r10 * 8]
+	add r10, r12
+	jmp r10
 
 ALIGN 4
 lbl_Loop:
@@ -49,7 +66,8 @@ lbl_set_loop_ip:
 	movzx r10, word ptr [r13 + rsi*4]
 	movzx r11, word ptr [r13 + rsi*4 + 2]
 	inc rsi			; advance to the next instruction
-	jmp qword ptr [r15 + r10 * 8]
+	add r10, r12
+	jmp r10
 	
 ALIGN 4
 lbl_Return:
@@ -58,14 +76,16 @@ lbl_Return:
 	movzx r10, word ptr [r13 + rsi*4]
 	movzx r11, word ptr [r13 + rsi*4 + 2]
 	inc rsi			; advance to the next instruction
-	jmp qword ptr [r15 + r10 * 8]
+	add r10, r12
+	jmp r10
 
 lbl_set_return_ip:
 	sub rsi, r11
 	movzx r10, word ptr [r13 + rsi*4]
 	movzx r11, word ptr [r13 + rsi*4 + 2]
 	inc rsi			; advance to the next instruction
-	jmp qword ptr [r15 + r10 * 8]
+	add r10, r12
+	jmp r10
 	
 ALIGN 4
 lbl_Right:
@@ -73,7 +93,8 @@ lbl_Right:
 	movzx r10, word ptr [r13 + rsi*4]
 	movzx r11, word ptr [r13 + rsi*4 + 2]
 	inc rsi			; advance to the next instruction
-	jmp qword ptr [r15 + r10 * 8]
+	add r10, r12
+	jmp r10
 	
 ALIGN 4
 lbl_Left:
@@ -81,7 +102,8 @@ lbl_Left:
 	movzx r10, word ptr [r13 + rsi*4]
 	movzx r11, word ptr [r13 + rsi*4 + 2]
 	inc rsi			; advance to the next instruction
-	jmp qword ptr [r15 + r10 * 8]
+	add r10, r12
+	jmp r10
 	
 ALIGN 4
 lbl_Add:
@@ -89,7 +111,8 @@ lbl_Add:
 	movzx r10, word ptr [r13 + rsi*4]
 	movzx r11, word ptr [r13 + rsi*4 + 2]
 	inc rsi			; advance to the next instruction
-	jmp qword ptr [r15 + r10 * 8]
+	add r10, r12
+	jmp r10
 	
 ALIGN 4
 lbl_Minus:
@@ -97,7 +120,8 @@ lbl_Minus:
 	movzx r10, word ptr [r13 + rsi*4]
 	movzx r11, word ptr [r13 + rsi*4 + 2]
 	inc rsi			; advance to the next instruction
-	jmp qword ptr [r15 + r10 * 8]
+	add r10, r12
+	jmp r10
 
 lbl_Print:
 	movzx rcx, byte ptr [rdi]
